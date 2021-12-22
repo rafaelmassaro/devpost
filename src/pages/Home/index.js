@@ -7,12 +7,14 @@ import firestore from '@react-native-firebase/firestore'
 import { Container, ButtonPost, ListPosts } from './styles'
 
 import Header from '../../components/Header';
+import PostsList from '../../components/PostsList';
 
 import { AuthContext } from '../../contexts/auth'
 
 
 export default function Home() {
   const navigation = useNavigation()
+  const { user } = useContext(AuthContext)
 
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -66,8 +68,14 @@ export default function Home() {
         </View>
         ): (
         <ListPosts
+          showsVerticalScrollIndicator={false}
           data={posts}
-          renderItem={({item}) => (<Text>Teste</Text>)} 
+          renderItem={({item}) => (
+            <PostsList
+              data={item} 
+              userId={user?.id}
+            />
+          )} 
         />
       )}
 
