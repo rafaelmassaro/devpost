@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback} from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import Feather from 'react-native-vector-icons/Feather'
@@ -27,100 +27,100 @@ export default function Home() {
     useCallback(() => {
       let isActive = true
 
-      function fetchPosts(){
+      function fetchPosts() {
         firestore().collection('posts')
-        .orderBy('created', 'desc')
-        .limit(5)
-        .get()
-        .then((snapshot) => {
-          
-          if(isActive){
-            setPosts([])
-            const postList = []
+          .orderBy('created', 'desc')
+          .limit(5)
+          .get()
+          .then((snapshot) => {
 
-            snapshot.docs.map(u => {
-              postList.push({
-                ...u.data(),
-                id: u.id,
+            if (isActive) {
+              setPosts([])
+              const postList = []
+
+              snapshot.docs.map(u => {
+                postList.push({
+                  ...u.data(),
+                  id: u.id,
+                })
               })
-            })
 
-            setEmptyList(!!snapshot.empty)
-            setPosts(postList)
-            setLastItem(snapshot.docs[snapshot.docs.length - 1])
-            setLoading(false)
+              setEmptyList(!!snapshot.empty)
+              setPosts(postList)
+              setLastItem(snapshot.docs[snapshot.docs.length - 1])
+              setLoading(false)
 
 
-          }
-        })
+            }
+          })
       }
 
       fetchPosts()
 
-      return() => {
+      return () => {
         isActive = false
       }
 
     }, [])
   )
 
-  async function handleRefreshPosts(){
+  async function handleRefreshPosts() {
     setLoadingRefresh(true)
 
     firestore().collection('posts')
-        .orderBy('created', 'desc')
-        .limit(5)
-        .get()
-        .then((snapshot) => {
-            
-          setPosts([])
-          const postList = []
+      .orderBy('created', 'desc')
+      .limit(5)
+      .get()
+      .then((snapshot) => {
 
-          snapshot.docs.map(u => {
-            postList.push({
-              ...u.data(),
-              id: u.id,
-            })
+        setPosts([])
+        const postList = []
+
+        snapshot.docs.map(u => {
+          postList.push({
+            ...u.data(),
+            id: u.id,
           })
-
-          setEmptyList(false)
-          setPosts(postList)
-          setLastItem(snapshot.docs[snapshot.docs.length - 1])
-
         })
-    
+
+        setEmptyList(false)
+        setPosts(postList)
+        setLastItem(snapshot.docs[snapshot.docs.length - 1])
+
+      })
+
     setLoadingRefresh(false)
   }
 
-  async function getListPosts(){
-    if(emptyList){
+  async function getListPosts() {
+    if (emptyList) {
       setLoading(false)
       return null
     }
 
-    if(loading) return;
+    if (loading) return;
 
     firestore().collection('posts')
-    .orderBy('created', 'desc')
-    .limit(5)
-    .startAfter(lastItem)
-    .get()
-    .then((snapshot) => {
-      const postList = []
+      .orderBy('created', 'desc')
+      .limit(5)
+      .startAfter(lastItem)
+      .get()
+      .then((snapshot) => {
+        const postList = []
 
-      snapshot.docs.map( u => {
-        postList.push({
-          ...u.data(),
-          id: u.id
+        snapshot.docs.map(u => {
+          postList.push({
+            ...u.data(),
+            id: u.id
+          })
         })
-      })
 
-      setEmptyList(!!snapshot.empty)
-      setLastItem(snapshot.docs[snapshot.docs.length - 1])
-      setPosts(oldPosts => [...oldPosts, ...postList])
-      setLoading(false)
-    })
-    .catch(error => console.log(error))
+        setEmptyList(!!snapshot.empty)
+        setLastItem(snapshot.docs[snapshot.docs.length - 1])
+        setPosts(oldPosts => [...oldPosts, ...postList])
+        setLoading(false)
+      })
+      .catch(error => console.log(error))
 
   }
 
@@ -129,19 +129,19 @@ export default function Home() {
       <Header />
 
       {loading ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <ActivityIndicator size={50} color="#e52246"/>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size={50} color="#e52246" />
         </View>
-        ): (
+      ) : (
         <ListPosts
           showsVerticalScrollIndicator={false}
           data={posts}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <PostsList
-              data={item} 
+              data={item}
               userId={user?.uid}
             />
-          )} 
+          )}
 
           refreshing={loadingRefresh}
           onRefresh={handleRefreshPosts}

@@ -1,127 +1,19 @@
-// import React, {useState} from 'react';
-
-// import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
-// import firestore from '@react-native-firebase/firestore'
-
-// import { formatDistance} from 'date-fns'
-// // import { ptBR } from 'date-fns/locale'
-
-// import {
-//     Container,
-//     Header,
-//     Avatar, 
-//     Name,
-//     ContentView,
-//     Content,
-//     Actions,
-//     LikeButton,
-//     Like,
-//     TimePost
-// } from './styles'
-
-// export default function PostsList({data, userId}) {
-//     const [likesPost, setLikesPost] = useState(data?.likes)
-
-//     async function handleLikePost(id, likes){
-//         const docId = `${userId}_${id}`
-
-//         const doc = await firestore().collection('likes')
-//         .doc(docId).get()
-
-//         if(doc.exists){
-//             await firestore().collection('posts')
-//             .doc(id).update({
-//                 likes: likes - 1
-//             })
-
-//             await firestore().collection('likes').doc(docId)
-//             .delete()
-//             .then(() => {
-//                 setLikesPost(likes - 1)
-//             })
-            
-//             return;
-
-//         }
-
-
-//         await firestore().collection('likes')
-//         .doc(docId).set({
-//             postId: id,
-//             userId: userId
-//         })
-
-//         await firestore().collection('posts')
-//         .doc(id).update({
-//             likes: likes + 1
-//         })
-//         .then(() => {
-//             setLikesPost(likes + 1)
-//         })
-//     }
-
-//     function formatTimePost(){
-//         // console.log(new Date(data.created.seconds * 1000))
-
-//         const datePost = new Date(data.created.seconds * 1000)
-
-//         return formatDistance(
-//             new Date(),
-//             datePost
-//         )
-//     }
-
-//  return (
-//    <Container>
-//        <Header>
-//             {data.avatarUrl ? (
-//                 <Avatar
-//                     source={{ uri: data.avatarUrl}} 
-//                 />
-//              ): (
-
-//                 <Avatar
-//                     source={require('../../assets/avatar.png')} 
-//                 />
-//              )}
-
-
-//            <Name numberOfLines={1}>
-//                {data?.author}
-//            </Name>
-//        </Header>
-
-//        <ContentView>
-//            <Content>{data?.content}</Content>
-//        </ContentView>
-
-//        <Actions>
-//            <LikeButton onPress={() => handleLikePost(data.id, likesPost)}>
-//                <Like>
-//                    {likesPost === 0 ? '' : likesPost}
-//                </Like>
-//                <MaterialCommunity 
-//                     name={likesPost === 0 ? 'heart-plus-outline' : 'cards-heart'}
-//                     size={20}
-//                     color="#e52246"
-//                />
-//            </LikeButton>
-
-//            <TimePost>
-//                {formatTimePost()}
-//            </TimePost>
-//        </Actions>
-//    </Container>
-//   );
-// }
-
 import React, { useState } from 'react';
-import { 
-  Container, 
-  Name, 
-  Header, 
-  Avatar, 
-  ContentView, 
+import { useNavigation } from '@react-navigation/native'
+
+import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
+import firestore from '@react-native-firebase/firestore'
+
+import { formatDistance } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+// import { ptBR } from 'date-fns/locale'
+
+import {
+  Container,
+  Header,
+  Avatar,
+  Name,
+  ContentView,
   Content,
   Actions,
   LikeButton,
@@ -129,64 +21,53 @@ import {
   TimePost
 } from './styles'
 
-import { formatDistance } from 'date-fns';
-import { ptBR } from 'date-fns/locale'
+export default function PostsList({ data, userId }) {
+  const [likesPost, setLikesPost] = useState(data?.likes)
 
-import firestore from '@react-native-firebase/firestore';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+  const navigation = useNavigation()
 
-function PostsList({ data, userId }){
-  const [likePost, setLikePost] = useState(data?.likes)
+  async function handleLikePost(id, likes) {
+    const docId = `${userId}_${id}`
 
-  async function handleLikePost(id, likes){
-    const docId = `${userId}_${id}`;
-    console.log(docId)
-
-    //Checar se o post já foi curtido
     const doc = await firestore().collection('likes')
-    .doc(docId).get();
+      .doc(docId).get()
 
-    if(doc.exists){
-      //Que dizer que já curtiu esse post, entao precisamos remover o like
+    if (doc.exists) {
       await firestore().collection('posts')
-      .doc(id).update({
-        likes: likes - 1
-      })
+        .doc(id).update({
+          likes: likes - 1
+        })
 
       await firestore().collection('likes').doc(docId)
-      .delete()
-      .then(() => {
-        setLikePost(likes - 1)
-      })
-      .catch(error => console.log(error))
+        .delete()
+        .then(() => {
+          setLikesPost(likes - 1)
+        })
 
       return;
 
     }
 
 
-    // Precisamos dar o like no post
     await firestore().collection('likes')
-    .doc(docId).set({
-      postId: id,
-      userId: userId
-    })
+      .doc(docId).set({
+        postId: id,
+        userId: userId
+      })
 
     await firestore().collection('posts')
-    .doc(id).update({
-      likes: likes + 1
-    })
-    .then(()=>{
-      setLikePost(likes + 1)
-    })
-    .catch(error => console.log(error))
-
-
+      .doc(id).update({
+        likes: likes + 1
+      })
+      .then(() => {
+        setLikesPost(likes + 1)
+      })
   }
 
-  function formatTimePost(){
-    // console.log(new Date(data.created.seconds * 1000));
-    const datePost = new Date(data.created.seconds * 1000);
+  function formatTimePost() {
+    // console.log(new Date(data.created.seconds * 1000))
+
+    const datePost = new Date(data.created.seconds * 1000)
 
     return formatDistance(
       new Date(),
@@ -197,21 +78,23 @@ function PostsList({ data, userId }){
     )
   }
 
-
-  return(
+  return (
     <Container>
-      <Header>
+      <Header onPress={() => navigation.navigate('PostUser', { title: data.author, userId: data.userId })}>
         {data.avatarUrl ? (
           <Avatar
             source={{ uri: data.avatarUrl }}
           />
         ) : (
+
           <Avatar
             source={require('../../assets/avatar.png')}
           />
         )}
+
+
         <Name numberOfLines={1}>
-          {data?.autor}
+          {data?.author}
         </Name>
       </Header>
 
@@ -220,14 +103,14 @@ function PostsList({ data, userId }){
       </ContentView>
 
       <Actions>
-        <LikeButton onPress={ () => handleLikePost(data.userId, likePost) }>
+        <LikeButton onPress={() => handleLikePost(data.id, likesPost)}>
           <Like>
-            {likePost === 0 ? '' : likePost}
+            {likesPost === 0 ? '' : likesPost}
           </Like>
-          <MaterialCommunityIcons
-            name={likePost === 0 ? 'heart-plus-outline' : 'cards-heart'}
+          <MaterialCommunity
+            name={likesPost === 0 ? 'heart-plus-outline' : 'cards-heart'}
             size={20}
-            color="#E52246"
+            color="#e52246"
           />
         </LikeButton>
 
@@ -235,10 +118,6 @@ function PostsList({ data, userId }){
           {formatTimePost()}
         </TimePost>
       </Actions>
-
-
     </Container>
-  )
+  );
 }
-
-export default PostsList;
